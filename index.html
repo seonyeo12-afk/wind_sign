@@ -1,0 +1,975 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>참석 서명 앱</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Segoe UI", sans-serif;
+      background: #f5f7fb;
+      color: #1f2937;
+    }
+    .wrap {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+    .header {
+      padding: 20px 20px 12px;
+      background: linear-gradient(135deg, #2563eb, #0ea5e9);
+      color: #fff;
+    }
+    .header h1 {
+      margin: 0 0 6px;
+      font-size: 24px;
+    }
+    .header p {
+      margin: 0;
+      opacity: 0.95;
+      font-size: 14px;
+    }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      padding: 14px 16px;
+      background: #eef4ff;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      border: 0;
+      background: #dbeafe;
+      color: #1d4ed8;
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .tab-btn.active {
+      background: #2563eb;
+      color: #fff;
+    }
+    .tab-pane {
+      display: none;
+      padding: 18px;
+    }
+    .tab-pane.active { display: block; }
+    .step {
+      display: none;
+    }
+    .step.active { display: block; }
+    .step-title {
+      margin: 0 0 14px;
+      font-size: 20px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .field {
+      margin-bottom: 14px;
+    }
+    .field.full { grid-column: 1 / -1; }
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 700;
+      font-size: 14px;
+    }
+    input, select, textarea, button {
+      font: inherit;
+    }
+    input[type="text"],
+    input[type="date"],
+    input[type="tel"],
+    input[type="url"],
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 12px 13px;
+      background: #fff;
+    }
+    textarea { min-height: 88px; resize: vertical; }
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+    .btn {
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 16px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .btn.primary { background: #2563eb; color: #fff; }
+    .btn.secondary { background: #e2e8f0; color: #1f2937; }
+    .btn.success { background: #16a34a; color: #fff; }
+    .btn.warn { background: #f59e0b; color: #fff; }
+    .hint {
+      font-size: 13px;
+      color: #64748b;
+      margin-top: 4px;
+    }
+    .mode-row {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+      padding: 12px;
+      background: #f8fafc;
+      border-radius: 12px;
+    }
+    .inline {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .inline input[type="radio"],
+    .inline input[type="checkbox"] {
+      width: auto;
+      margin: 0;
+    }
+    .sign-box {
+      border: 2px dashed #93c5fd;
+      border-radius: 16px;
+      padding: 12px;
+      background: #eff6ff;
+    }
+    #signCanvas {
+      width: 100%;
+      height: 220px;
+      display: block;
+      background: #fff;
+      border-radius: 12px;
+      border: 1px solid #bfdbfe;
+      touch-action: none;
+    }
+    .review {
+      border: 1px solid #dbeafe;
+      background: #f8fbff;
+      border-radius: 16px;
+      padding: 16px;
+    }
+    .review-grid {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 10px 14px;
+      align-items: center;
+    }
+    .review-key {
+      font-weight: 700;
+      color: #475569;
+    }
+    .sign-preview {
+      width: 100%;
+      max-width: 360px;
+      min-height: 120px;
+      background: #fff;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      object-fit: contain;
+    }
+    .status {
+      margin-top: 12px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .status.ok { color: #15803d; }
+    .status.error { color: #b91c1c; }
+    .status.info { color: #1d4ed8; }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin: 16px 0;
+    }
+    .stat {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 14px;
+      text-align: center;
+    }
+    .stat strong {
+      display: block;
+      font-size: 22px;
+      margin-top: 4px;
+    }
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      background: #fff;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 900px;
+    }
+    th, td {
+      border-bottom: 1px solid #e5e7eb;
+      padding: 10px;
+      text-align: center;
+      font-size: 14px;
+      vertical-align: middle;
+    }
+    th {
+      background: #eff6ff;
+      color: #1e3a8a;
+    }
+    .sign-thumb {
+      max-width: 120px;
+      max-height: 48px;
+      object-fit: contain;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .badge.ok { background: #dcfce7; color: #166534; }
+    .badge.late { background: #fef3c7; color: #92400e; }
+    .list-box {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #eff6ff;
+      color: #1e40af;
+      font-weight: 700;
+    }
+    .chip button {
+      border: 0;
+      background: transparent;
+      color: #b91c1c;
+      cursor: pointer;
+      font-weight: 700;
+      padding: 0;
+    }
+    .subcard {
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 16px;
+      background: #fff;
+      margin-top: 16px;
+    }
+    .small { font-size: 13px; color: #64748b; }
+    .hidden { display: none !important; }
+
+    @media (max-width: 720px) {
+      .grid, .stats { grid-template-columns: 1fr; }
+      .review-grid { grid-template-columns: 1fr; }
+      .wrap { padding: 10px; }
+      .tab-pane { padding: 14px; }
+    }
+
+    @media print {
+      body { background: #fff; }
+      .header, .tabs, .controls-only, #tab-sign, #tab-cohort, #tab-settings { display: none !important; }
+      .card { box-shadow: none; border-radius: 0; }
+      #tab-list { display: block !important; padding: 0; }
+      #printArea { display: block !important; }
+      .table-wrap { overflow: visible; border: 0; border-radius: 0; }
+      table { min-width: 0; }
+      th, td { font-size: 12px; padding: 6px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="header">
+        <h1>참석 서명 앱</h1>
+        <p>GitHub Pages + Google Apps Script + 구글시트용 안정화 버전</p>
+      </div>
+
+      <div class="tabs controls-only">
+        <button class="tab-btn active" type="button" data-tab="tab-sign">서명하기</button>
+        <button class="tab-btn" type="button" data-tab="tab-list">명단·PDF</button>
+        <button class="tab-btn" type="button" data-tab="tab-cohort">기수설정</button>
+        <button class="tab-btn" type="button" data-tab="tab-settings">연동설정</button>
+      </div>
+
+      <div id="tab-sign" class="tab-pane active">
+        <div id="step1" class="step active">
+          <h2 class="step-title">1. 활동 정보</h2>
+          <div class="grid">
+            <div class="field">
+              <label for="actName">활동명</label>
+              <input id="actName" type="text" placeholder="예: 6월 정기모임">
+            </div>
+            <div class="field">
+              <label for="actDate">활동일자</label>
+              <input id="actDate" type="date">
+            </div>
+            <div class="field full">
+              <label for="actPlace">장소</label>
+              <input id="actPlace" type="text" placeholder="예: 청년센터 3층 교육실">
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn primary" type="button" onclick="goStep2()">다음</button>
+          </div>
+        </div>
+
+        <div id="step2" class="step">
+          <h2 class="step-title">2. 참석자 정보</h2>
+          <div class="mode-row">
+            <label class="inline"><input type="radio" name="inputMode" value="select" checked> 명단에서 선택</label>
+            <label class="inline"><input type="radio" name="inputMode" value="manual"> 직접 입력</label>
+          </div>
+
+          <div id="memberSelectWrap" class="field">
+            <label for="memberSelect">이름 선택</label>
+            <select id="memberSelect">
+              <option value="">선택 안 함</option>
+            </select>
+            <div class="hint">명단 시트의 이름을 불러옵니다.</div>
+          </div>
+
+          <div class="grid">
+            <div class="field">
+              <label for="personName">이름</label>
+              <input id="personName" type="text" placeholder="이름 입력">
+            </div>
+            <div class="field">
+              <label for="personCohort">기수</label>
+              <input id="personCohort" list="cohortList" type="text" placeholder="예: 17기">
+              <datalist id="cohortList"></datalist>
+            </div>
+            <div class="field full">
+              <label for="personPhone">연락처</label>
+              <input id="personPhone" type="tel" placeholder="010-0000-0000">
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="inline"><input id="lateCheck" type="checkbox"> 지각 체크</label>
+          </div>
+          <div class="field" id="lateReasonWrap" style="display:none;">
+            <label for="lateReason">지각 사유</label>
+            <textarea id="lateReason" placeholder="지각 사유를 입력하세요"></textarea>
+          </div>
+
+          <div id="memberStatus" class="status info"></div>
+
+          <div class="actions">
+            <button class="btn secondary" type="button" onclick="showStep(1)">이전</button>
+            <button class="btn primary" type="button" onclick="goStep3()">다음</button>
+          </div>
+        </div>
+
+        <div id="step3" class="step">
+          <h2 class="step-title">3. 서명</h2>
+          <div class="sign-box">
+            <canvas id="signCanvas"></canvas>
+            <div class="hint">손가락 또는 마우스로 서명하세요.</div>
+          </div>
+          <div class="actions">
+            <button class="btn secondary" type="button" onclick="showStep(2)">이전</button>
+            <button class="btn warn" type="button" onclick="clearSignature()">지우기</button>
+            <button class="btn primary" type="button" onclick="goStep4()">다음</button>
+          </div>
+        </div>
+
+        <div id="step4" class="step">
+          <h2 class="step-title">4. 최종 확인</h2>
+          <div class="review">
+            <div class="review-grid">
+              <div class="review-key">활동명</div><div id="rvActName"></div>
+              <div class="review-key">활동일자</div><div id="rvActDate"></div>
+              <div class="review-key">장소</div><div id="rvActPlace"></div>
+              <div class="review-key">이름</div><div id="rvName"></div>
+              <div class="review-key">기수</div><div id="rvCohort"></div>
+              <div class="review-key">연락처</div><div id="rvPhone"></div>
+              <div class="review-key">출석상태</div><div id="rvLate"></div>
+              <div class="review-key">서명</div><div><img id="reviewSign" class="sign-preview" alt="서명 미리보기"></div>
+            </div>
+          </div>
+          <div id="submitStatus" class="status"></div>
+          <div class="actions">
+            <button class="btn secondary" type="button" onclick="showStep(3)">이전</button>
+            <button id="submitBtn" class="btn success" type="button" onclick="finalSubmit()">구글시트 저장</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="tab-list" class="tab-pane">
+        <h2 class="step-title">명단 조회 · PDF 출력</h2>
+        <div class="grid controls-only">
+          <div class="field">
+            <label for="loadDate">조회 날짜</label>
+            <input id="loadDate" type="date">
+          </div>
+          <div class="field">
+            <label>&nbsp;</label>
+            <div class="actions" style="margin-top:0;">
+              <button class="btn primary" type="button" onclick="loadByDate()">불러오기</button>
+              <button class="btn secondary" type="button" onclick="window.print()">PDF 출력</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="listStatus" class="status info controls-only"></div>
+
+        <div id="printArea">
+          <div class="subcard">
+            <div><strong>활동명:</strong> <span id="printActName">-</span></div>
+            <div style="margin-top:6px;"><strong>활동일자:</strong> <span id="printActDate">-</span></div>
+            <div style="margin-top:6px;"><strong>장소:</strong> <span id="printActPlace">-</span></div>
+          </div>
+
+          <div class="stats">
+            <div class="stat">전체<strong id="statTotal">0</strong></div>
+            <div class="stat">정상참석<strong id="statNormal">0</strong></div>
+            <div class="stat">지각<strong id="statLate">0</strong></div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>번호</th>
+                  <th>성명</th>
+                  <th>기수</th>
+                  <th>연락처</th>
+                  <th>출석상태</th>
+                  <th>비고</th>
+                  <th>서명</th>
+                </tr>
+              </thead>
+              <tbody id="rowsBody">
+                <tr><td colspan="7">데이터를 불러오면 여기에 표시됩니다.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div id="tab-cohort" class="tab-pane">
+        <h2 class="step-title">기수 설정</h2>
+        <div class="grid">
+          <div class="field">
+            <label for="newCohort">기수 추가</label>
+            <input id="newCohort" type="text" placeholder="예: 17기">
+          </div>
+          <div class="field">
+            <label>&nbsp;</label>
+            <div class="actions" style="margin-top:0;">
+              <button class="btn primary" type="button" onclick="addCohort()">추가</button>
+            </div>
+          </div>
+        </div>
+        <div class="small">추가한 기수는 이 브라우저에 저장됩니다.</div>
+        <div id="cohortBox" class="list-box"></div>
+      </div>
+
+      <div id="tab-settings" class="tab-pane">
+        <h2 class="step-title">연동 설정</h2>
+        <div class="field">
+          <label for="scriptUrl">Apps Script 웹앱 URL</label>
+          <input id="scriptUrl" type="url" placeholder="https://script.google.com/macros/s/.../exec">
+          <div class="hint">기본값으로 현재 URL이 들어가 있습니다. 바꾸면 저장됩니다.</div>
+        </div>
+        <div class="actions">
+          <button class="btn primary" type="button" onclick="saveScriptUrl()">URL 저장</button>
+          <button class="btn secondary" type="button" onclick="testConnection()">명단 연결 테스트</button>
+        </div>
+        <div id="settingsStatus" class="status info"></div>
+      </div>
+    </div>
+  </div>
+
+  <iframe id="submitFrame" name="submitFrame" style="display:none;"></iframe>
+  <form id="postForm" method="post" target="submitFrame" style="display:none;"></form>
+
+  <script>
+    var DEFAULT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzoDvaYpGxQbXD27N0Ob5fssWcHH6khvhtJVxIqmdOdHbr8JX7IPSWfj2E8ggROkwV2/exec';
+    var members = [];
+    var submitPending = false;
+    var lastLoadedRows = [];
+    var signCanvas = null;
+    var signCtx = null;
+    var drawing = false;
+    var signed = false;
+
+    function byId(id) { return document.getElementById(id); }
+    function getScriptUrl() {
+      return (localStorage.getItem('signatureScriptUrl') || DEFAULT_SCRIPT_URL).trim();
+    }
+    function setStatus(id, text, cls) {
+      var el = byId(id);
+      if (!el) return;
+      el.className = 'status ' + (cls || 'info');
+      el.textContent = text || '';
+    }
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+    function defaultCohorts() {
+      var arr = [];
+      for (var i = 1; i <= 20; i++) arr.push(i + '기');
+      return arr;
+    }
+    function getCohorts() {
+      try {
+        var saved = JSON.parse(localStorage.getItem('cohortOptions'));
+        if (saved && saved.length) return saved;
+      } catch (e) {}
+      return defaultCohorts();
+    }
+    function saveCohorts(list) {
+      localStorage.setItem('cohortOptions', JSON.stringify(list));
+      renderCohorts();
+      renderCohortDatalist();
+    }
+    function renderCohorts() {
+      var box = byId('cohortBox');
+      var list = getCohorts();
+      box.innerHTML = '';
+      for (var i = 0; i < list.length; i++) {
+        var item = document.createElement('div');
+        item.className = 'chip';
+        item.innerHTML = '<span>' + escapeHtml(list[i]) + '</span><button type="button" data-value="' + escapeHtml(list[i]) + '">삭제</button>';
+        box.appendChild(item);
+      }
+      var buttons = box.querySelectorAll('button');
+      for (var j = 0; j < buttons.length; j++) {
+        buttons[j].onclick = function() {
+          removeCohort(this.getAttribute('data-value'));
+        };
+      }
+    }
+    function renderCohortDatalist() {
+      var list = getCohorts();
+      var dl = byId('cohortList');
+      dl.innerHTML = '';
+      for (var i = 0; i < list.length; i++) {
+        var opt = document.createElement('option');
+        opt.value = list[i];
+        dl.appendChild(opt);
+      }
+    }
+    function addCohort() {
+      var input = byId('newCohort');
+      var value = (input.value || '').trim();
+      if (!value) return;
+      var list = getCohorts();
+      if (list.indexOf(value) === -1) list.push(value);
+      saveCohorts(list);
+      input.value = '';
+    }
+    function removeCohort(value) {
+      var list = getCohorts().filter(function(item) { return item !== value; });
+      saveCohorts(list);
+    }
+    function setTab(tabId) {
+      var tabs = document.querySelectorAll('.tab-pane');
+      var btns = document.querySelectorAll('.tab-btn');
+      for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
+      for (var j = 0; j < btns.length; j++) btns[j].classList.remove('active');
+      byId(tabId).classList.add('active');
+      var activeBtn = document.querySelector('.tab-btn[data-tab="' + tabId + '"]');
+      if (activeBtn) activeBtn.classList.add('active');
+      if (tabId === 'tab-list') {
+        byId('loadDate').value = byId('actDate').value || byId('loadDate').value;
+      }
+    }
+    function showStep(no) {
+      var steps = byId('tab-sign').querySelectorAll('.step');
+      for (var i = 0; i < steps.length; i++) steps[i].classList.remove('active');
+      byId('step' + no).classList.add('active');
+      if (no === 3) {
+        window.setTimeout(function() {
+          initSignatureCanvas();
+        }, 30);
+      }
+    }
+    function goStep2() {
+      var actName = (byId('actName').value || '').trim();
+      var actDate = (byId('actDate').value || '').trim();
+      if (!actName) {
+        alert('활동명을 입력해주세요.');
+        byId('actName').focus();
+        return;
+      }
+      if (!actDate) {
+        alert('활동일자를 입력해주세요.');
+        byId('actDate').focus();
+        return;
+      }
+      showStep(2);
+      loadMembers();
+    }
+    function goStep3() {
+      var name = (byId('personName').value || '').trim();
+      if (!name) {
+        alert('이름을 입력하거나 선택해주세요.');
+        return;
+      }
+      showStep(3);
+    }
+    function goStep4() {
+      if (!signed || isCanvasBlank()) {
+        alert('서명 후 다음으로 넘어가주세요.');
+        return;
+      }
+      byId('rvActName').textContent = byId('actName').value || '-';
+      byId('rvActDate').textContent = byId('actDate').value || '-';
+      byId('rvActPlace').textContent = byId('actPlace').value || '-';
+      byId('rvName').textContent = byId('personName').value || '-';
+      byId('rvCohort').textContent = byId('personCohort').value || '-';
+      byId('rvPhone').textContent = byId('personPhone').value || '-';
+      byId('rvLate').textContent = byId('lateCheck').checked ? ('지각 / ' + (byId('lateReason').value || '')) : '정상참석';
+      byId('reviewSign').src = signCanvas.toDataURL('image/png');
+      setStatus('submitStatus', '', 'info');
+      showStep(4);
+    }
+    function currentMode() {
+      var checked = document.querySelector('input[name="inputMode"]:checked');
+      return checked ? checked.value : 'select';
+    }
+    function syncModeUI() {
+      var mode = currentMode();
+      byId('memberSelectWrap').style.display = mode === 'select' ? 'block' : 'none';
+      if (mode === 'manual') byId('memberSelect').value = '';
+    }
+    function toggleLate() {
+      byId('lateReasonWrap').style.display = byId('lateCheck').checked ? 'block' : 'none';
+      if (!byId('lateCheck').checked) byId('lateReason').value = '';
+    }
+    function initSignatureCanvas() {
+      signCanvas = byId('signCanvas');
+      if (!signCanvas) return;
+      var ratio = window.devicePixelRatio || 1;
+      var rect = signCanvas.getBoundingClientRect();
+      var width = Math.max(Math.floor(rect.width), 280);
+      var height = 220;
+      signCanvas.width = width * ratio;
+      signCanvas.height = height * ratio;
+      signCtx = signCanvas.getContext('2d');
+      signCtx.scale(ratio, ratio);
+      signCtx.lineWidth = 2.2;
+      signCtx.lineCap = 'round';
+      signCtx.lineJoin = 'round';
+      signCtx.strokeStyle = '#111827';
+      signCtx.fillStyle = '#ffffff';
+      signCtx.fillRect(0, 0, width, height);
+      signed = false;
+    }
+    function clearSignature() {
+      initSignatureCanvas();
+    }
+    function canvasPoint(evt) {
+      var rect = signCanvas.getBoundingClientRect();
+      return {
+        x: evt.clientX - rect.left,
+        y: evt.clientY - rect.top
+      };
+    }
+    function startDraw(evt) {
+      if (!signCtx) initSignatureCanvas();
+      drawing = true;
+      var p = canvasPoint(evt);
+      signCtx.beginPath();
+      signCtx.moveTo(p.x, p.y);
+      signed = true;
+      evt.preventDefault();
+    }
+    function moveDraw(evt) {
+      if (!drawing) return;
+      var p = canvasPoint(evt);
+      signCtx.lineTo(p.x, p.y);
+      signCtx.stroke();
+      evt.preventDefault();
+    }
+    function endDraw(evt) {
+      drawing = false;
+      if (evt) evt.preventDefault();
+    }
+    function isCanvasBlank() {
+      if (!signCanvas) return true;
+      var temp = document.createElement('canvas');
+      temp.width = signCanvas.width;
+      temp.height = signCanvas.height;
+      var tctx = temp.getContext('2d');
+      tctx.fillStyle = '#ffffff';
+      tctx.fillRect(0, 0, temp.width, temp.height);
+      return signCanvas.toDataURL() === temp.toDataURL();
+    }
+    function jsonp(url, done, fail) {
+      var callbackName = '__jsonp_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
+      var script = document.createElement('script');
+      var cleaned = false;
+      function cleanup() {
+        if (cleaned) return;
+        cleaned = true;
+        try { delete window[callbackName]; } catch (e) { window[callbackName] = undefined; }
+        if (script.parentNode) script.parentNode.removeChild(script);
+      }
+      window[callbackName] = function(data) {
+        cleanup();
+        done(data || {});
+      };
+      script.onerror = function() {
+        cleanup();
+        if (fail) fail(new Error('JSONP load error'));
+      };
+      var sep = url.indexOf('?') === -1 ? '?' : '&';
+      script.src = url + sep + 'callback=' + encodeURIComponent(callbackName) + '&_ts=' + Date.now();
+      document.body.appendChild(script);
+      window.setTimeout(function() {
+        if (!cleaned) {
+          cleanup();
+          if (fail) fail(new Error('JSONP timeout'));
+        }
+      }, 10000);
+    }
+    function loadMembers() {
+      var url = getScriptUrl();
+      if (!url) {
+        setStatus('memberStatus', 'Apps Script URL이 비어 있습니다.', 'error');
+        return;
+      }
+      setStatus('memberStatus', '명단 불러오는 중...', 'info');
+      jsonp(url + '?type=members', function(data) {
+        members = data && data.members ? data.members : [];
+        renderMemberOptions();
+        setStatus('memberStatus', '명단 ' + members.length + '명 불러오기 완료', 'ok');
+      }, function() {
+        members = [];
+        renderMemberOptions();
+        setStatus('memberStatus', '명단을 불러오지 못했습니다. Apps Script 재배포 상태를 확인해주세요.', 'error');
+      });
+    }
+    function renderMemberOptions() {
+      var sel = byId('memberSelect');
+      sel.innerHTML = '<option value="">선택 안 함</option>';
+      for (var i = 0; i < members.length; i++) {
+        var opt = document.createElement('option');
+        opt.value = String(i);
+        opt.textContent = members[i].name || '';
+        sel.appendChild(opt);
+      }
+    }
+    function onMemberChange() {
+      var idx = byId('memberSelect').value;
+      if (idx === '') return;
+      var member = members[Number(idx)];
+      if (!member) return;
+      byId('personName').value = member.name || '';
+      byId('personCohort').value = member.cohort || '';
+      byId('personPhone').value = member.phone || '';
+    }
+    function buildPostForm(payload) {
+      var form = byId('postForm');
+      form.innerHTML = '';
+      form.action = getScriptUrl();
+      for (var key in payload) {
+        if (Object.prototype.hasOwnProperty.call(payload, key)) {
+          var input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = key;
+          input.value = payload[key];
+          form.appendChild(input);
+        }
+      }
+    }
+    function finalSubmit() {
+      if (submitPending) return;
+      var url = getScriptUrl();
+      if (!url) {
+        setStatus('submitStatus', 'Apps Script URL이 비어 있습니다.', 'error');
+        return;
+      }
+      var payload = {
+        no: '',
+        actName: byId('actName').value || '',
+        actDate: byId('actDate').value || '',
+        actPlace: byId('actPlace').value || '',
+        name: byId('personName').value || '',
+        cohort: byId('personCohort').value || '',
+        phone: byId('personPhone').value || '',
+        late: byId('lateCheck').checked ? 'true' : 'false',
+        lateReason: byId('lateReason').value || '',
+        time: new Date().toLocaleString('ko-KR'),
+        sig: signCanvas.toDataURL('image/png')
+      };
+      buildPostForm(payload);
+      submitPending = true;
+      byId('submitBtn').disabled = true;
+      setStatus('submitStatus', '저장 요청 전송 중...', 'info');
+      byId('postForm').submit();
+      window.setTimeout(function() {
+        if (submitPending) {
+          submitPending = false;
+          byId('submitBtn').disabled = false;
+          setStatus('submitStatus', '저장 요청은 전송됐지만 응답 확인이 늦습니다. 구글시트를 직접 확인해주세요.', 'error');
+        }
+      }, 8000);
+    }
+    function afterSubmitSuccess() {
+      submitPending = false;
+      byId('submitBtn').disabled = false;
+      setStatus('submitStatus', '저장 완료! 구글시트에 기록되었습니다.', 'ok');
+      var savedDate = byId('actDate').value;
+      byId('loadDate').value = savedDate;
+      loadByDate(true);
+      window.setTimeout(function() {
+        resetPersonOnly();
+        showStep(2);
+      }, 700);
+    }
+    function resetPersonOnly() {
+      byId('memberSelect').value = '';
+      byId('personName').value = '';
+      byId('personCohort').value = '';
+      byId('personPhone').value = '';
+      byId('lateCheck').checked = false;
+      byId('lateReason').value = '';
+      toggleLate();
+      clearSignature();
+    }
+    function loadByDate(silent) {
+      var date = byId('loadDate').value;
+      if (!date) {
+        if (!silent) setStatus('listStatus', '조회 날짜를 선택해주세요.', 'error');
+        return;
+      }
+      setStatus('listStatus', '데이터 불러오는 중...', 'info');
+      jsonp(getScriptUrl() + '?date=' + encodeURIComponent(date), function(data) {
+        lastLoadedRows = data && data.rows ? data.rows : [];
+        renderRows(lastLoadedRows);
+        setStatus('listStatus', '총 ' + lastLoadedRows.length + '건 불러왔습니다.', 'ok');
+      }, function() {
+        lastLoadedRows = [];
+        renderRows(lastLoadedRows);
+        setStatus('listStatus', '불러오기에 실패했습니다. Apps Script 배포를 다시 확인해주세요.', 'error');
+      });
+    }
+    function renderRows(rows) {
+      var tbody = byId('rowsBody');
+      if (!rows || !rows.length) {
+        tbody.innerHTML = '<tr><td colspan="7">해당 날짜 데이터가 없습니다.</td></tr>';
+        byId('statTotal').textContent = '0';
+        byId('statNormal').textContent = '0';
+        byId('statLate').textContent = '0';
+        byId('printActName').textContent = '-';
+        byId('printActDate').textContent = byId('loadDate').value || '-';
+        byId('printActPlace').textContent = '-';
+        return;
+      }
+      var html = '';
+      var lateCount = 0;
+      for (var i = 0; i < rows.length; i++) {
+        var r = rows[i];
+        var late = String(r[7] || '') === '지각';
+        if (late) lateCount++;
+        var signHtml = r[10] ? '<img class="sign-thumb" src="' + escapeHtml(r[10]) + '" alt="서명">' : '-';
+        html += '<tr>' +
+          '<td>' + escapeHtml(r[0]) + '</td>' +
+          '<td>' + escapeHtml(r[4]) + '</td>' +
+          '<td>' + escapeHtml(r[5]) + '</td>' +
+          '<td>' + escapeHtml(r[6]) + '</td>' +
+          '<td><span class="badge ' + (late ? 'late' : 'ok') + '">' + escapeHtml(r[7] || '-') + '</span></td>' +
+          '<td>' + escapeHtml(r[8] || '-') + '</td>' +
+          '<td>' + signHtml + '</td>' +
+        '</tr>';
+      }
+      tbody.innerHTML = html;
+      byId('statTotal').textContent = String(rows.length);
+      byId('statLate').textContent = String(lateCount);
+      byId('statNormal').textContent = String(rows.length - lateCount);
+      byId('printActName').textContent = rows[0][1] || '-';
+      byId('printActDate').textContent = rows[0][2] || '-';
+      byId('printActPlace').textContent = rows[0][3] || '-';
+    }
+    function saveScriptUrl() {
+      var url = (byId('scriptUrl').value || '').trim();
+      if (!url) {
+        setStatus('settingsStatus', 'URL을 입력해주세요.', 'error');
+        return;
+      }
+      localStorage.setItem('signatureScriptUrl', url);
+      setStatus('settingsStatus', '저장되었습니다.', 'ok');
+      loadMembers();
+    }
+    function testConnection() {
+      setStatus('settingsStatus', '명단 연결 테스트 중...', 'info');
+      jsonp(getScriptUrl() + '?type=members', function(data) {
+        var count = data && data.members ? data.members.length : 0;
+        setStatus('settingsStatus', '연결 성공: 명단 ' + count + '명 확인', 'ok');
+      }, function() {
+        setStatus('settingsStatus', '연결 실패: Apps Script 재배포 또는 URL을 확인해주세요.', 'error');
+      });
+    }
+    function init() {
+      byId('scriptUrl').value = getScriptUrl();
+      renderCohorts();
+      renderCohortDatalist();
+      byId('actDate').value = new Date().toISOString().slice(0, 10);
+      byId('loadDate').value = byId('actDate').value;
+
+      var tabBtns = document.querySelectorAll('.tab-btn');
+      for (var i = 0; i < tabBtns.length; i++) {
+        tabBtns[i].onclick = function() { setTab(this.getAttribute('data-tab')); };
+      }
+      var modeRadios = document.querySelectorAll('input[name="inputMode"]');
+      for (var j = 0; j < modeRadios.length; j++) {
+        modeRadios[j].onchange = syncModeUI;
+      }
+      byId('memberSelect').onchange = onMemberChange;
+      byId('lateCheck').onchange = toggleLate;
+      syncModeUI();
+      toggleLate();
+
+      initSignatureCanvas();
+      signCanvas.addEventListener('pointerdown', startDraw);
+      signCanvas.addEventListener('pointermove', moveDraw);
+      signCanvas.addEventListener('pointerup', endDraw);
+      signCanvas.addEventListener('pointerleave', endDraw);
+      signCanvas.addEventListener('pointercancel', endDraw);
+      window.addEventListener('resize', function() {
+        if (byId('step3').classList.contains('active')) initSignatureCanvas();
+      });
+
+      byId('submitFrame').addEventListener('load', function() {
+        if (submitPending) afterSubmitSuccess();
+      });
+
+      loadMembers();
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>

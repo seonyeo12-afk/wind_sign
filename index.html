@@ -279,11 +279,143 @@
     .small { font-size: 13px; color: #64748b; }
     .hidden { display: none !important; }
 
+    .tab-btn .lock-ico { margin-right: 4px; opacity: 0.8; }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 50;
+    }
+    .modal-overlay.hidden { display: none !important; }
+    .modal-box {
+      background: #fff;
+      border-radius: 18px;
+      padding: 24px;
+      max-width: 320px;
+      width: 100%;
+      box-shadow: 0 16px 50px rgba(0,0,0,0.25);
+      text-align: center;
+    }
+    .modal-box h3 {
+      margin: 0 0 6px;
+      font-size: 18px;
+    }
+    .modal-box p {
+      margin: 0 0 16px;
+      font-size: 13px;
+      color: #64748b;
+    }
+    #pinInput {
+      width: 100%;
+      text-align: center;
+      font-size: 24px;
+      letter-spacing: 8px;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .modal-actions .btn { flex: 1; }
+    #pinError {
+      min-height: 18px;
+      font-size: 13px;
+      color: #b91c1c;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .schedule-pick {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .schedule-pick-btn {
+      text-align: left;
+      width: 100%;
+      border: 1px solid #dbeafe;
+      background: #f8fbff;
+      border-radius: 12px;
+      padding: 12px 14px;
+      cursor: pointer;
+    }
+    .schedule-pick-btn strong { display: block; font-size: 15px; color: #1e3a8a; }
+    .schedule-pick-btn span { font-size: 13px; color: #64748b; }
+    .schedule-pick-btn.selected {
+      border-color: #2563eb;
+      background: #eff6ff;
+      box-shadow: 0 0 0 2px rgba(37,99,235,0.25) inset;
+    }
+    .readonly-banner {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 14px;
+    }
+    .readonly-banner .ro-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #64748b;
+      margin-bottom: 2px;
+    }
+    .readonly-banner .ro-value {
+      font-size: 16px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .sign-guide-name {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      font-size: 56px;
+      font-weight: 700;
+      color: rgba(37, 99, 235, 0.14);
+      letter-spacing: 6px;
+      user-select: none;
+    }
+    .sign-box { position: relative; }
+    .sign-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+      font-size: 13px;
+      color: #64748b;
+    }
+    .sign-meta .sign-ok { color: #15803d; font-weight: 700; }
+    .sign-meta .sign-warn { color: #b45309; font-weight: 700; }
+    .confirm-banner {
+      margin-top: 16px;
+      padding: 14px 16px;
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      border-radius: 14px;
+      font-size: 14px;
+      color: #9a3412;
+      font-weight: 600;
+      text-align: center;
+    }
+
     @media (max-width: 720px) {
       .grid, .stats { grid-template-columns: 1fr; }
       .review-grid { grid-template-columns: 1fr; }
       .wrap { padding: 10px; }
       .tab-pane { padding: 14px; }
+      .sign-guide-name { font-size: 36px; letter-spacing: 3px; }
     }
 
     @media print {
@@ -307,35 +439,47 @@
 
       <div class="tabs controls-only">
         <button class="tab-btn active" type="button" data-tab="tab-sign">서명하기</button>
-        <button class="tab-btn" type="button" data-tab="tab-list">서명내역·PDF</button>
-        <button class="tab-btn" type="button" data-tab="tab-cohort">기수설정</button>
-        <button class="tab-btn" type="button" data-tab="tab-settings">연동설정</button>
+        <button class="tab-btn" type="button" data-tab="tab-list"><span class="lock-ico">🔒</span>서명내역·PDF</button>
+        <button class="tab-btn" type="button" data-tab="tab-cohort"><span class="lock-ico">🔒</span>기수설정</button>
+        <button class="tab-btn" type="button" data-tab="tab-settings"><span class="lock-ico">🔒</span>연동설정</button>
       </div>
 
       <div id="tab-sign" class="tab-pane active">
         <div id="step1" class="step active">
           <h2 class="step-title">1. 활동 정보</h2>
-          <div class="grid">
-            <div class="field">
-              <label for="actName">활동명</label>
-              <input id="actName" type="text" placeholder="예: 6월 정기모임">
-            </div>
-            <div class="field">
-              <label for="actDate">활동일자</label>
-              <input id="actDate" type="date">
-            </div>
-            <div class="field full">
-              <label for="actPlace">장소</label>
-              <input id="actPlace" type="text" placeholder="예: 청년센터 3층 교육실">
+          <div id="scheduleStatus" class="status info"></div>
+          <div id="schedulePickBox" class="schedule-pick"></div>
+
+          <div id="manualActWrap" class="hidden">
+            <div class="small" style="margin-bottom:10px;">담당자 직접 입력 모드입니다.</div>
+            <div class="grid">
+              <div class="field">
+                <label for="actName">활동명</label>
+                <input id="actName" type="text" placeholder="예: 6월 정기모임">
+              </div>
+              <div class="field">
+                <label for="actDate">활동일자</label>
+                <input id="actDate" type="date">
+              </div>
+              <div class="field full">
+                <label for="actPlace">장소</label>
+                <input id="actPlace" type="text" placeholder="예: 청년센터 3층 교육실">
+              </div>
             </div>
           </div>
+
           <div class="actions">
+            <button id="manualActToggleBtn" class="btn secondary" type="button" onclick="openManualActMode()">🔒 담당자 직접 입력</button>
             <button class="btn primary" type="button" onclick="goStep2()">다음</button>
           </div>
         </div>
 
         <div id="step2" class="step">
           <h2 class="step-title">2. 참석자 정보</h2>
+          <div class="readonly-banner">
+            <div class="ro-label">선택된 활동</div>
+            <div class="ro-value" id="step2ActSummary">-</div>
+          </div>
           <div class="mode-row">
             <label class="inline"><input type="radio" name="inputMode" value="select" checked> 명단에서 선택</label>
             <label class="inline"><input type="radio" name="inputMode" value="manual"> 직접 입력</label>
@@ -383,9 +527,13 @@
 
         <div id="step3" class="step">
           <h2 class="step-title">3. 서명</h2>
+          <div class="small" style="margin-bottom:10px;">희미하게 보이는 이름을 따라 <strong>정자로 또박또박</strong> 서명해주세요. 흘려 쓴 서명이나 점만 찍은 서명은 다시 요청드릴 수 있어요.</div>
           <div class="sign-box">
+            <div id="signGuideName" class="sign-guide-name"></div>
             <canvas id="signCanvas"></canvas>
-            <div class="hint">손가락 또는 마우스로 서명하세요.</div>
+          </div>
+          <div class="sign-meta">
+            <span id="signQualityMsg">서명을 시작해주세요.</span>
           </div>
           <div class="actions">
             <button class="btn secondary" type="button" onclick="showStep(2)">이전</button>
@@ -409,6 +557,7 @@
             </div>
           </div>
           <div id="submitStatus" class="status"></div>
+          <div class="confirm-banner">📱 이 화면을 그대로 오늘 담당 서포터즈에게 보여주고 확인받은 뒤, 저장 버튼을 눌러주세요.</div>
           <div class="actions">
             <button class="btn secondary" type="button" onclick="showStep(3)">이전</button>
             <button id="submitBtn" class="btn success" type="button" onclick="finalSubmit()">구글시트 저장</button>
@@ -500,6 +649,16 @@
           <button class="btn secondary" type="button" onclick="testConnection()">명단 연결 테스트</button>
         </div>
         <div id="settingsStatus" class="status info"></div>
+
+        <div class="subcard">
+          <label for="pinChangeInput">담당자 PIN 변경</label>
+          <input id="pinChangeInput" type="text" inputmode="numeric" maxlength="6" placeholder="새 PIN (4~6자리 숫자)">
+          <div class="hint">이 PIN은 서명내역·기수설정·연동설정 탭에 들어갈 때 사용됩니다. 이 기기/브라우저에만 저장됩니다.</div>
+          <div class="actions">
+            <button class="btn primary" type="button" onclick="savePin()">PIN 저장</button>
+          </div>
+          <div id="pinChangeStatus" class="status info"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -507,8 +666,22 @@
   <iframe id="submitFrame" name="submitFrame" style="display:none;"></iframe>
   <form id="postForm" method="post" target="submitFrame" style="display:none;"></form>
 
+  <div id="pinModal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <h3>담당자 확인</h3>
+      <p>이 화면은 담당자만 볼 수 있어요. PIN을 입력해주세요.</p>
+      <div id="pinError"></div>
+      <input id="pinInput" type="password" inputmode="numeric" maxlength="6" placeholder="••••">
+      <div class="modal-actions">
+        <button class="btn secondary" type="button" onclick="closePinModal()">취소</button>
+        <button class="btn primary" type="button" onclick="submitPin()">확인</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     var DEFAULT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzoDvaYpGxQbXD27N0Ob5fssWcHH6khvhtJVxIqmdOdHbr8JX7IPSWfj2E8ggROkwV2/exec';
+    var DEFAULT_PIN = '0426';
     var members = [];
     var submitPending = false;
     var lastLoadedRows = [];
@@ -516,10 +689,24 @@
     var signCtx = null;
     var drawing = false;
     var signed = false;
+    var schedule = [];
+    var selectedSchedule = null;
+    var manualActMode = false;
+    var pendingPinAction = null;
+    var sigPointCount = 0;
+    var sigStartTime = 0;
+    var sigPathLength = 0;
+    var sigLastPoint = null;
 
     function byId(id) { return document.getElementById(id); }
     function getScriptUrl() {
       return (localStorage.getItem('signatureScriptUrl') || DEFAULT_SCRIPT_URL).trim();
+    }
+    function getPin() {
+      return (localStorage.getItem('signatureAdminPin') || DEFAULT_PIN).trim();
+    }
+    function isUnlocked() {
+      return sessionStorage.getItem('adminUnlocked') === 'true';
     }
     function setStatus(id, text, cls) {
       var el = byId(id);
@@ -632,7 +819,12 @@
       var list = getCohorts().filter(function(item) { return item !== value; });
       saveCohorts(list);
     }
+    var LOCKED_TABS = ['tab-list', 'tab-cohort', 'tab-settings'];
     function setTab(tabId) {
+      if (LOCKED_TABS.indexOf(tabId) !== -1 && !isUnlocked()) {
+        openPinModal(function() { setTab(tabId); });
+        return;
+      }
       var tabs = document.querySelectorAll('.tab-pane');
       var btns = document.querySelectorAll('.tab-btn');
       for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
@@ -641,8 +833,45 @@
       var activeBtn = document.querySelector('.tab-btn[data-tab="' + tabId + '"]');
       if (activeBtn) activeBtn.classList.add('active');
       if (tabId === 'tab-list') {
-        byId('loadDate').value = byId('actDate').value || byId('loadDate').value;
+        byId('loadDate').value = byId('actDate') ? (byId('actDate').value || byId('loadDate').value) : byId('loadDate').value;
       }
+    }
+    function openPinModal(onSuccess) {
+      pendingPinAction = onSuccess;
+      byId('pinError').textContent = '';
+      byId('pinInput').value = '';
+      byId('pinModal').classList.remove('hidden');
+      window.setTimeout(function() { byId('pinInput').focus(); }, 50);
+    }
+    function closePinModal() {
+      pendingPinAction = null;
+      byId('pinModal').classList.add('hidden');
+    }
+    function submitPin() {
+      var entered = (byId('pinInput').value || '').trim();
+      if (entered === getPin()) {
+        sessionStorage.setItem('adminUnlocked', 'true');
+        var action = pendingPinAction;
+        pendingPinAction = null;
+        byId('pinModal').classList.add('hidden');
+        if (action) action();
+      } else {
+        byId('pinError').textContent = 'PIN이 올바르지 않습니다.';
+        byId('pinInput').value = '';
+        byId('pinInput').focus();
+      }
+    }
+    function openManualActMode() {
+      if (!isUnlocked()) {
+        openPinModal(function() { openManualActMode(); });
+        return;
+      }
+      manualActMode = true;
+      selectedSchedule = null;
+      byId('manualActWrap').classList.remove('hidden');
+      byId('schedulePickBox').classList.add('hidden');
+      var hl = document.querySelectorAll('.schedule-pick-btn');
+      for (var i = 0; i < hl.length; i++) hl[i].classList.remove('selected');
     }
     function showStep(no) {
       var steps = byId('tab-sign').querySelectorAll('.step');
@@ -654,19 +883,30 @@
         }, 30);
       }
     }
+    function getActiveAct() {
+      if (manualActMode) {
+        return {
+          actName: (byId('actName').value || '').trim(),
+          actDate: (byId('actDate').value || '').trim(),
+          actPlace: (byId('actPlace').value || '').trim()
+        };
+      }
+      if (selectedSchedule) {
+        return {
+          actName: selectedSchedule.actName,
+          actDate: selectedSchedule.actDate,
+          actPlace: selectedSchedule.actPlace
+        };
+      }
+      return { actName: '', actDate: '', actPlace: '' };
+    }
     function goStep2() {
-      var actName = (byId('actName').value || '').trim();
-      var actDate = (byId('actDate').value || '').trim();
-      if (!actName) {
-        alert('활동명을 입력해주세요.');
-        byId('actName').focus();
+      var act = getActiveAct();
+      if (!act.actName || !act.actDate) {
+        alert('목록에서 활동을 선택해주세요.');
         return;
       }
-      if (!actDate) {
-        alert('활동일자를 입력해주세요.');
-        byId('actDate').focus();
-        return;
-      }
+      byId('step2ActSummary').textContent = act.actName + ' · ' + act.actDate + (act.actPlace ? ' · ' + act.actPlace : '');
       showStep(2);
       loadMembers();
     }
@@ -683,9 +923,14 @@
         alert('서명 후 다음으로 넘어가주세요.');
         return;
       }
-      byId('rvActName').textContent = byId('actName').value || '-';
-      byId('rvActDate').textContent = byId('actDate').value || '-';
-      byId('rvActPlace').textContent = byId('actPlace').value || '-';
+      if (!isSignatureQualityOk()) {
+        alert('서명이 너무 짧거나 점만 찍혀 있어요. 이름을 또박또박 다시 써주세요.');
+        return;
+      }
+      var act = getActiveAct();
+      byId('rvActName').textContent = act.actName || '-';
+      byId('rvActDate').textContent = act.actDate || '-';
+      byId('rvActPlace').textContent = act.actPlace || '-';
       byId('rvName').textContent = byId('personName').value || '-';
       byId('rvCohort').textContent = byId('personCohort').value || '-';
       byId('rvPhone').textContent = byId('personPhone').value || '-';
@@ -725,6 +970,18 @@
       signCtx.fillStyle = '#ffffff';
       signCtx.fillRect(0, 0, width, height);
       signed = false;
+      sigPointCount = 0;
+      sigStartTime = 0;
+      sigPathLength = 0;
+      sigLastPoint = null;
+      updateSignGuideName();
+      updateSignQualityMsg();
+    }
+    function updateSignGuideName() {
+      var guide = byId('signGuideName');
+      if (!guide) return;
+      var name = (byId('personName').value || '').trim();
+      guide.textContent = name;
     }
     function clearSignature() {
       initSignatureCanvas();
@@ -743,6 +1000,9 @@
       signCtx.beginPath();
       signCtx.moveTo(p.x, p.y);
       signed = true;
+      if (!sigStartTime) sigStartTime = Date.now();
+      sigPointCount++;
+      sigLastPoint = p;
       evt.preventDefault();
     }
     function moveDraw(evt) {
@@ -750,11 +1010,41 @@
       var p = canvasPoint(evt);
       signCtx.lineTo(p.x, p.y);
       signCtx.stroke();
+      sigPointCount++;
+      if (sigLastPoint) {
+        var dx = p.x - sigLastPoint.x;
+        var dy = p.y - sigLastPoint.y;
+        sigPathLength += Math.sqrt(dx * dx + dy * dy);
+      }
+      sigLastPoint = p;
+      updateSignQualityMsg();
       evt.preventDefault();
     }
     function endDraw(evt) {
       drawing = false;
+      updateSignQualityMsg();
       if (evt) evt.preventDefault();
+    }
+    function isSignatureQualityOk() {
+      // 최소 궤적 길이(점 하나만 찍은 서명 방지)와 최소 시간(너무 빠르게 휙 그은 서명 방지)을 함께 확인합니다.
+      var elapsed = sigStartTime ? (Date.now() - sigStartTime) : 0;
+      return sigPathLength >= 180 && elapsed >= 600;
+    }
+    function updateSignQualityMsg() {
+      var el = byId('signQualityMsg');
+      if (!el) return;
+      if (!signed || sigPathLength === 0) {
+        el.textContent = '서명을 시작해주세요.';
+        el.className = '';
+        return;
+      }
+      if (isSignatureQualityOk()) {
+        el.textContent = '✓ 정상적인 서명으로 확인됩니다.';
+        el.className = 'sign-ok';
+      } else {
+        el.textContent = '이름을 조금 더 또박또박 써주세요.';
+        el.className = 'sign-warn';
+      }
     }
     function isCanvasBlank() {
       if (!signCanvas) return true;
@@ -826,6 +1116,61 @@
         setStatus('memberStatus', '명단을 불러오지 못했습니다. Apps Script가 JSONP callback을 지원하는지 확인해주세요.', 'error');
       });
     }
+    function normalizeSchedule(item) {
+      if (Array.isArray(item)) {
+        return { actName: item[0] || '', actDate: item[1] || '', actPlace: item[2] || '' };
+      }
+      item = item || {};
+      return {
+        actName: item.actName || item['활동명'] || '',
+        actDate: item.actDate || item['활동일자'] || '',
+        actPlace: item.actPlace || item['장소'] || ''
+      };
+    }
+    function loadSchedule() {
+      var url = getScriptUrl();
+      if (!url) {
+        setStatus('scheduleStatus', 'Apps Script URL이 비어 있습니다.', 'error');
+        return;
+      }
+      setStatus('scheduleStatus', '활동 목록 불러오는 중...', 'info');
+      callApi(['type=schedule', 'action=schedule', 'mode=schedule'], function(data) {
+        var raw = data.schedule || data.data || data.rows || [];
+        schedule = raw.map ? raw.map(normalizeSchedule).filter(function(s) { return s.actName && s.actDate; }) : [];
+        renderSchedulePicker();
+        if (schedule.length) {
+          setStatus('scheduleStatus', '아래 목록에서 오늘 활동을 선택해주세요.', 'ok');
+        } else {
+          setStatus('scheduleStatus', '등록된 활동이 없습니다. 담당자에게 활동 등록을 요청해주세요.', 'info');
+        }
+      }, function() {
+        schedule = [];
+        renderSchedulePicker();
+        setStatus('scheduleStatus', '활동 목록을 불러오지 못했습니다.', 'error');
+      });
+    }
+    function renderSchedulePicker() {
+      var box = byId('schedulePickBox');
+      if (manualActMode) return;
+      box.classList.remove('hidden');
+      box.innerHTML = '';
+      if (!schedule.length) return;
+      for (var i = 0; i < schedule.length; i++) {
+        (function(item) {
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'schedule-pick-btn';
+          btn.innerHTML = '<strong>' + escapeHtml(item.actName) + '</strong><span>' + escapeHtml(item.actDate) + (item.actPlace ? ' · ' + escapeHtml(item.actPlace) : '') + '</span>';
+          btn.onclick = function() {
+            selectedSchedule = item;
+            var all = box.querySelectorAll('.schedule-pick-btn');
+            for (var k = 0; k < all.length; k++) all[k].classList.remove('selected');
+            btn.classList.add('selected');
+          };
+          box.appendChild(btn);
+        })(schedule[i]);
+      }
+    }
     function renderMemberOptions() {
       var sel = byId('memberSelect');
       sel.innerHTML = '<option value="">선택 안 함</option>';
@@ -866,13 +1211,14 @@
         setStatus('submitStatus', 'Apps Script URL이 비어 있습니다.', 'error');
         return;
       }
+      var act = getActiveAct();
       var payload = {
         action: 'save',
         type: 'save',
         no: '',
-        actName: byId('actName').value || '',
-        actDate: byId('actDate').value || '',
-        actPlace: byId('actPlace').value || '',
+        actName: act.actName || '',
+        actDate: act.actDate || '',
+        actPlace: act.actPlace || '',
         name: byId('personName').value || '',
         cohort: byId('personCohort').value || '',
         phone: byId('personPhone').value || '',
@@ -899,7 +1245,7 @@
       submitPending = false;
       byId('submitBtn').disabled = false;
       setStatus('submitStatus', '저장 완료! 구글시트에 기록되었습니다.', 'ok');
-      var savedDate = byId('actDate').value;
+      var savedDate = getActiveAct().actDate;
       byId('loadDate').value = savedDate;
       loadByDate(true);
       window.setTimeout(function() {
@@ -1032,6 +1378,16 @@
         setStatus('settingsStatus', '연결 실패: Apps Script 재배포 또는 URL을 확인해주세요.', 'error');
       });
     }
+    function savePin() {
+      var pin = (byId('pinChangeInput').value || '').trim();
+      if (!/^\d{4,6}$/.test(pin)) {
+        setStatus('pinChangeStatus', 'PIN은 4~6자리 숫자로 입력해주세요.', 'error');
+        return;
+      }
+      localStorage.setItem('signatureAdminPin', pin);
+      byId('pinChangeInput').value = '';
+      setStatus('pinChangeStatus', 'PIN이 변경되었습니다. 다음 접속부터 새 PIN이 적용됩니다.', 'ok');
+    }
     function init() {
       byId('scriptUrl').value = getScriptUrl();
       renderCohorts();
@@ -1049,6 +1405,7 @@
       }
       byId('memberSelect').onchange = onMemberChange;
       byId('lateCheck').onchange = toggleLate;
+      byId('personName').addEventListener('input', updateSignGuideName);
       syncModeUI();
       toggleLate();
 
@@ -1066,7 +1423,12 @@
         if (submitPending) afterSubmitSuccess();
       });
 
+      byId('pinInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') submitPin();
+      });
+
       loadMembers();
+      loadSchedule();
     }
 
     document.addEventListener('DOMContentLoaded', init);
